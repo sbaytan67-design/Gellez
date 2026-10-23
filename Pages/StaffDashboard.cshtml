@@ -1,0 +1,304 @@
+﻿@page
+@model StaffDashboardModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Home - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .phone {
+            max-width: 480px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 18px 18px 110px;
+            color: #1f1b2d;
+        }
+
+        .top { display: flex; align-items: center; justify-content: space-between; }
+        .avatar {
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            border: 2px solid #e8e5ef;
+            background: #3b2f55;
+            color: #f1ecff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem;
+            text-decoration: none;
+        }
+        .logo {
+            width: 90px;
+            height: 92px;
+            background: url('/images/logo.png') no-repeat center / contain;
+        }
+        .bell-wrap { position: relative; }
+        .bell {
+            height: 40px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: none;
+            background: #d9d5e3;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .badge {
+            position: absolute; top: -5px; right: -3px;
+            min-width: 19px; height: 19px; padding: 0 5px;
+            border-radius: 999px;
+            background: #e53935; color: #fff;
+            font-size: .7rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .notif-panel {
+            display: none;
+            position: absolute; right: 0; top: 48px;
+            width: 280px;
+            background: #fff; color: #222;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            z-index: 20; overflow: hidden;
+        }
+        .notif-panel.open { display: block; }
+        .notif-panel h3 { padding: 14px 16px 8px; font-size: 1rem; }
+        .notif-item { padding: 10px 16px; border-top: 1px solid #f0f0f0; font-size: .85rem; }
+        .notif-item small { display: block; color: #888; margin-top: 3px; }
+        .notif-item.unread { background: #fff8e6; }
+
+        .search { margin-top: 14px; }
+        .search input {
+            width: 100%;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 999px;
+            background: #e8e5ef;
+            color: #1f1b2d;
+            font-size: .95rem;
+            outline: none;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .welcome {
+            margin: 20px 0 6px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: #e3a99d;
+            overflow: hidden;
+            max-height: 2.4em;
+            overflow-wrap: break-word;
+        }
+        .role { color: #e6d3b0; font-size: .85rem; margin-bottom: 14px; }
+
+        .card {
+            background: #e8e5ef;
+            border-radius: 28px;
+            padding: 18px;
+        }
+        .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .card-head h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; }
+        .live { font-size: .72rem; color: #3b7d4f; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .live::before {
+            content: ''; width: 8px; height: 8px; border-radius: 50%;
+            background: #34a853;
+            animation: pulse 1.6s infinite;
+        }
+        @@keyframes pulse { 0% { opacity: 1; } 50% { opacity: .25; } 100% { opacity: 1; } }
+
+        .list { max-height: 320px; overflow-y: auto; }
+        .row { display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid #d5d0e6; }
+        .row:first-child { border-top: none; }
+        .time { width: 70px; flex: 0 0 70px; padding-top: 8px; font-size: .78rem; font-weight: 700; color: #4a4560; }
+        .entry {
+            flex: 1;
+            background: #f6f4fb;
+            border: 1px solid #d5d0e6;
+            border-radius: 12px;
+            padding: 9px 11px;
+            font-size: .86rem;
+        }
+        .entry small { display: block; margin-top: 3px; color: #6a6580; font-size: .75rem; }
+        .empty { padding: 18px 4px; text-align: center; color: #6a6580; font-size: .9rem; }
+        .updated { margin-top: 8px; font-size: .7rem; color: #7b7690; text-align: right; }
+
+        .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+        .tile {
+            background: #e8e5ef;
+            border-radius: 24px;
+            aspect-ratio: 1 / 1.1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 8px; padding: 8px;
+            text-decoration: none;
+            color: #1f1b2d;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-weight: 700; font-size: .85rem; text-align: center;
+            transition: transform .15s;
+        }
+        .tile:hover { transform: translateY(-2px); }
+        .tile .icon { font-size: 2.3rem; line-height: 1; }
+
+        .dev { margin-top: 22px; text-align: center; font-size: .75rem; color: #f5e1a4; }
+        .dev form { display: inline; }
+        .dev button {
+            background: none; border: none; color: #f5e1a4;
+            text-decoration: underline; cursor: pointer; font-size: .75rem; margin: 0 6px;
+        }
+
+        .nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 480px;
+            display: flex; justify-content: space-around;
+            background: #e9e7f0;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -4px 14px rgba(0, 0, 0, .25);
+            z-index: 10;
+        }
+        .nav a {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            text-decoration: none; color: #3a3550; font-size: .75rem;
+        }
+        .nav a .icon { font-size: 1.5rem; }
+        .nav a.active { color: #b4535f; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="top">
+            <a href="/StaffProfile" class="avatar" title="Profile">@(string.IsNullOrEmpty(Model.FullName) ? "?" : Model.FullName[..1].ToUpper())</a>
+            <div class="logo"></div>
+            <div class="bell-wrap">
+                <button type="button" class="bell" id="bellBtn" aria-label="Notifications">🔔 ▾<span class="badge">2</span></button>
+                <div class="notif-panel" id="notifPanel">
+                    <h3>Notifications</h3>
+                    <div class="notif-item unread">New booking received.<small>Sample • Just now</small></div>
+                    <div class="notif-item unread">A customer rescheduled an appointment.<small>Sample • Today</small></div>
+                    <div class="notif-item">Welcome to Gellez Beauty Salon!<small>Sample • Yesterday</small></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search">
+            <input type="text" id="q" placeholder="Search today's schedule" autocomplete="off" />
+        </div>
+
+        <h1 class="welcome">Welcome, @Model.FullName!</h1>
+        <p class="role">@Model.Role</p>
+
+        <div class="card">
+            <div class="card-head">
+                <h2>Today's Schedule</h2>
+                <span class="live">LIVE</span>
+            </div>
+            <div class="list" id="list"><p class="empty">Loading...</p></div>
+            <p class="updated" id="updated"></p>
+        </div>
+
+        <div class="tiles">
+            <a href="/CustomerAccounts" class="tile"><span class="icon">👥</span>Customer Accounts</a>
+            <a href="/CustomerHistory" class="tile"><span class="icon">🕘</span>Customer History</a>
+            <a href="/Appointments" class="tile"><span class="icon">📅</span>Appointments</a>
+        </div>
+
+        <div class="dev">
+            Testing tools:
+            <form method="post" asp-page-handler="AddSample"><button type="submit">Add sample appointment</button></form>
+            <form method="post" asp-page-handler="ClearSamples"><button type="submit">Clear samples</button></form>
+            <br />
+            <form method="post" asp-page-handler="Logout"><button type="submit">Logout</button></form>
+        </div>
+
+        <nav class="nav">
+            <a href="/StaffDashboard" class="active"><span class="icon">🏠</span>Home</a>
+            <a href="/StaffSchedule"><span class="icon">🗓️</span>Schedule</a>
+            <a href="/CustomerAccounts"><span class="icon">👥</span>Clients</a>
+            <a href="/StaffProfile"><span class="icon">👤</span>Profile</a>
+        </nav>
+    </div>
+
+    <script>
+        var all = [];
+        var listEl = document.getElementById('list');
+        var updEl = document.getElementById('updated');
+        var q = document.getElementById('q');
+
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function render() {
+            var term = q.value.trim().toLowerCase();
+            var items = all.filter(function (a) {
+                return !term || (a.customer + ' ' + a.service + ' ' + a.stylist).toLowerCase().indexOf(term) !== -1;
+            });
+
+            if (items.length === 0) {
+                listEl.innerHTML = '<p class="empty">' + (all.length === 0 ? 'No appointments scheduled for today.' : 'No matches found.') + '</p>';
+                return;
+            }
+
+            listEl.innerHTML = items.map(function (a) {
+                return '<div class="row">' +
+                    '<div class="time">' + esc(a.time) + '</div>' +
+                    '<div class="entry"><strong>' + esc(a.customer) + '</strong> - ' + esc(a.service) +
+                    '<small>' + (a.stylist ? 'Stylist: ' + esc(a.stylist) + ' • ' : '') + esc(a.status) + '</small></div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        async function load() {
+            try {
+                var res = await fetch('?handler=Schedule', { cache: 'no-store' });
+                if (res.status === 401) { window.location = '/OwnerLogin'; return; }
+                var data = await res.json();
+                if (!res.ok) { updEl.textContent = 'Error: ' + (data.error || res.status); return; }
+                all = data;
+                render();
+                updEl.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+                updEl.textContent = 'Offline - retrying...';
+            }
+        }
+
+        q.addEventListener('input', render);
+        load();
+        setInterval(load, 15000);
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+
+        var bellBtn = document.getElementById('bellBtn');
+        var panel = document.getElementById('notifPanel');
+        bellBtn.addEventListener('click', function (e) { e.stopPropagation(); panel.classList.toggle('open'); });
+        document.addEventListener('click', function () { panel.classList.remove('open'); });
+
+        function fitOneLine(box, target){
+            target = target || box;
+            target.style.fontSize = '';
+            var size = parseFloat(getComputedStyle(target).fontSize);
+            while (target.scrollWidth > box.clientWidth && size > 9){
+                size -= 1;
+                target.style.fontSize = size = 'px';
+            }
+        }
+        function fitWelcome(){
+            var w = documant.querySelector('.welcome');
+            if (w) fitOneLine(w);
+        }
+        fitWelcome();
+        window.addEventListener('resize', fitWelcome);
+        if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitWelcome);
+    </script>
+</body>
+</html>

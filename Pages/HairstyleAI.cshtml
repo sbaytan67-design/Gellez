@@ -1,0 +1,1237 @@
+﻿@page   //ginagawant web page ang file
+@model HairstyleAIModel  //connected ito sa C# class sa likod
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Hairstyle Recommendation - Gellez Beauty Salon</title>
+    <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                font-family: 'Segoe UI', sans-serif;
+                background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed;
+                color: #f5e1a4;
+                padding: 24px 16px 40px;
+            }
+
+            .wrap {
+                max-width: 960px;
+                margin: 0 auto;
+            }
+
+            .stage-row {
+                display: grid;
+                grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+                gap: 16px;
+                align-items: start;
+            }
+
+            @@media (max-width: 820px) {
+                .stage-row {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+
+                #looks {
+                    margin-top: 0;
+                }
+            }
+
+            .back {
+                color: #f5e1a4;
+                text-decoration: none;
+                font-size: .9rem;
+            }
+
+            h1 {
+                margin: 14px 0 6px;
+                font-size: 1.6rem;
+            }
+
+            .sub {
+                font-size: .9rem;
+                opacity: .85;
+                margin-bottom: 16px;
+                line-height: 1.4;
+            }
+
+            .last {
+                background: rgba(0, 0, 0, .45);
+                border: 1px solid #d4af37;
+                border-radius: 14px;
+                padding: 10px 14px;
+                font-size: .85rem;
+                margin-bottom: 14px;
+            }
+
+                .last small {
+                    opacity: .75;
+                }
+
+            .cam {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 3 / 4;
+                background: rgba(0, 0, 0, .45);
+                border: 1px solid #d4af37;
+                border-radius: 20px;
+                overflow: hidden;
+            }
+
+                .cam canvas {
+                    position: absolute;
+                    inset: 0;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: none;
+                    transform: scaleX(-1);
+                }
+
+            #video {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .guide {
+                position: absolute;
+                left: 20%;
+                top: 14%;
+                width: 60%;
+                height: 66%;
+                border: 2px dashed rgba(245, 225, 164, .7);
+                border-radius: 50%;
+                pointer-events: none;
+                display: none;
+            }
+
+            .placeholder {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 24px;
+                font-size: 1rem;
+                opacity: .85;
+            }
+
+            .badge {
+                position: absolute;
+                left: 50%;
+                top: 12px;
+                transform: translateX(-50%);
+                max-width: 92%;
+                padding: 6px 14px;
+                border-radius: 999px;
+                background: rgba(0, 0, 0, .65);
+                color: #f5e1a4;
+                font-size: .82rem;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: none;
+            }
+
+            .actions {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 14px;
+            }
+
+            .btn {
+                flex: 1 1 140px;
+                padding: 12px;
+                border: none;
+                border-radius: 999px;
+                background: #d4af37;
+                color: #000;
+                font-size: .95rem;
+                font-weight: 600;
+                text-align: center;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+                .btn:hover {
+                    filter: brightness(1.1);
+                }
+
+                .btn:disabled {
+                    opacity: .45;
+                    cursor: not-allowed;
+                }
+
+                .btn.outline {
+                    background: transparent;
+                    border: 2px solid #d4af37;
+                    color: #f5e1a4;
+                }
+
+            .status {
+                margin-top: 12px;
+                font-size: .9rem;
+                min-height: 1.2em;
+            }
+
+            .panel {
+                display: none;
+                margin-top: 16px;
+                background: rgba(0, 0, 0, .45);
+                border: 1px solid #d4af37;
+                border-radius: 20px;
+                padding: 18px;
+            }
+
+                .panel h2 {
+                    font-size: 1.25rem;
+                    margin-bottom: 6px;
+                }
+
+                .panel h3 {
+                    font-size: .95rem;
+                    margin: 14px 0 8px;
+                    color: #fff;
+                }
+
+                    .panel h3:first-child {
+                        margin-top: 0;
+                    }
+
+            .desc {
+                font-size: .88rem;
+                line-height: 1.45;
+            }
+
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .chipbtn {
+                padding: 8px 14px;
+                border-radius: 999px;
+                border: 1px solid #d4af37;
+                background: rgba(255, 255, 255, .06);
+                color: #f5e1a4;
+                font-size: .85rem;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+                .chipbtn.on {
+                    background: #d4af37;
+                    color: #000;
+                }
+
+            .swatch {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                border: 2px solid rgba(255, 255, 255, .5);
+                cursor: pointer;
+                padding: 0;
+            }
+
+                .swatch.on {
+                    border-color: #fff;
+                    box-shadow: 0 0 0 3px #d4af37;
+                }
+
+                .swatch.none {
+                    background: #2b2b2b;
+                    position: relative;
+                }
+
+                    .swatch.none::after {
+                        content: '';
+                        position: absolute;
+                        left: 50%;
+                        top: 3px;
+                        bottom: 3px;
+                        width: 2px;
+                        background: #ff6b6b;
+                        transform: translateX(-50%) rotate(45deg);
+                    }
+
+                .swatch.custom {
+                    position: relative;
+                    display: inline-block;
+                    overflow: hidden;
+                    background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+                }
+
+                    .swatch.custom input {
+                        position: absolute;
+                        inset: 0;
+                        width: 100%;
+                        height: 100%;
+                        opacity: 0;
+                        cursor: pointer;
+                        border: 0;
+                        padding: 0;
+                    }
+
+            #looks {
+                display: block;
+                margin-top: 0;
+            }
+
+            #cutBox h4 {
+                font-size: .75rem;
+                opacity: .8;
+                margin: 14px 0 6px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .5px;
+            }
+
+            .slider {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 14px;
+                font-size: .85rem;
+            }
+
+                .slider input {
+                    flex: 1;
+                    accent-color: #d4af37;
+                }
+
+            .hint {
+                margin-top: 12px;
+                font-size: .75rem;
+                opacity: .7;
+            }
+
+            .choice {
+                margin-top: 12px;
+                font-size: .85rem;
+                min-height: 1.2em;
+            }
+
+            .note {
+                margin-top: 14px;
+                font-size: .75rem;
+                opacity: .75;
+                line-height: 1.4;
+            }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/CustomerDashboard" class="back">&larr; Back</a>
+        <h1>AI Hairstyle Recommendation</h1>
+        <p class="sub">Face the camera straight, use good lighting, and keep your face inside the oval. Recommendations appear while we scan. Tap a look to preview it on yourself, then tap Finish &amp; Save.</p>
+
+        @if (Model.Last != null)  //"Last Saved" kong may naka save na
+        {
+            <div class="last">
+                Last saved: <strong>@Model.Last.FaceShape</strong>@(string.IsNullOrEmpty(Model.Last.ChosenStyle) ? "" : " | " + Model.Last.ChosenStyle)
+                <small>(@Model.Last.CreatedAt.ToString("MMM d, h:mm tt"))</small>
+            </div>
+        }
+
+        <div class="stage-row">
+            <div class="left">
+                <div class="cam">
+                    <div class="placeholder" id="placeholder">Tap "Start Camera" to begin</div>
+                    <video id="video" playsinline muted></video>
+                    <canvas id="view"></canvas>
+                    <div class="guide" id="guide"></div>
+                    <div class="badge" id="badge"></div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn" id="startBtn">Start Camera</button>
+                    <button type="button" class="btn outline" id="finishBtn" disabled>Finish &amp; Save</button>
+                </div>
+                <p class="status" id="status"></p>
+
+            </div>
+            <div class="panel" id="looks">
+                <h3>Try a look (live preview)</h3>
+                <div id="cutBox"></div>
+                <h3>Hair color</h3>
+                <div class="row" id="colorRow"></div>
+                <label class="slider">Color strength <input type="range" id="strength" min="30" max="100" value="90" /></label>
+                <p class="hint">Start the camera first, then tap a look or a color. You can mix a haircut with a color.</p>
+            </div>
+
+        </div>
+
+        <div class="panel" id="recs">
+            <h2 id="shapeName"></h2>
+            <p class="desc" id="shapeDesc"></p>
+            <h3>Suggested for women</h3>
+            <div class="row" id="womenChips"></div>
+            <h3>Suggested for men</h3>
+            <div class="row" id="menChips"></div>
+            <p class="choice" id="choiceNote"></p>
+        </div>
+
+        <div class="panel" id="final">
+            <h2>Saved!</h2>
+            <p class="desc" id="finalText"></p>
+            <div class="actions">
+                <a href="/BookNow" class="btn">Book Now</a>
+                <a href="/HairCatalog" class="btn outline">Hair Catalog</a>
+            </div>
+            <p class="note">This is an estimate based on the proportions of your face, and the preview is only an approximation. Your stylist can give the final advice. Your camera feed is processed in your browser and is not uploaded; only your face shape and chosen style are saved.</p>
+        </div>
+
+        <form id="afForm">@Html.AntiForgeryToken()</form> //security token laban sa CSRF
+    </div>
+
+    <script>
+            const MP_URL = "https://cdn.jsdelivr.net/npm/@@mediapipe/tasks-vision@0.10.14/+esm";
+            const WASM_URL = "https://cdn.jsdelivr.net/npm/@@mediapipe/tasks-vision@0.10.14/wasm";
+            const FACE_MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+            const SEG_MODEL = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite";
+
+            const STYLES = {
+                Oval: {
+                    desc: "Your face is well balanced, a little longer than it is wide. Almost any hairstyle suits you.",
+                    women: ["Long layers", "Classic bob", "Side-swept bangs", "Pixie cut"],
+                    men: ["Textured quiff", "Side part", "Classic taper", "Slick back"]
+                },
+                Round: {
+                    desc: "Your face length and width are similar, with soft curved edges. Styles that add height and make the face look longer work best.",
+                    women: ["Long layers past the shoulders", "Lob (long bob)", "Deep side part", "Volume at the crown"],
+                    men: ["Pompadour or quiff", "Undercut with volume on top", "Faux hawk", "Side part with fade"]
+                },
+                Square: {
+                    desc: "You have a strong jawline, and your forehead and jaw are similar in width. Soft, textured styles balance the angles.",
+                    women: ["Soft waves", "Long layers", "Side-swept bangs", "Textured lob"],
+                    men: ["Crew cut", "Buzz cut", "Side part", "Textured crop"]
+                },
+                Heart: {
+                    desc: "Your forehead is wider and your chin is narrower. Styles that add width around the jaw balance your face.",
+                    women: ["Chin-length bob", "Side-swept bangs", "Layers below the chin", "Soft curls at the ends"],
+                    men: ["Textured fringe", "Side part", "Medium length with layers", "Low fade with natural top"]
+                },
+                Oblong: {
+                    desc: "Your face is noticeably longer than it is wide. Styles that add width and avoid extra height work best.",
+                    women: ["Bob with volume at the sides", "Layered cut with bangs", "Waves or curls", "Shoulder-length cut"],
+                    men: ["Short sides with a fringe", "Textured crop", "Side part", "Medium length with side volume"]
+                }
+            };
+
+            // Aling hairstyle ang may live preview (filter)
+            const PREVIEW = {
+                "Buzz cut": "buzz", "Crew cut": "crew",
+                "Pixie cut": "pixie", "Textured crop": "short",
+                "Classic taper": "taper", "Low fade with natural top": "taper", "Side part with fade": "taper",
+                "Undercut with volume on top": "undercut", "Short sides with a fringe": "undercut",
+                "Faux hawk": "fauxhawk",
+                "Classic bob": "bob", "Chin-length bob": "bob", "Bob with volume at the sides": "bob",
+                "Lob (long bob)": "lob", "Textured lob": "lob", "Shoulder-length cut": "lob",
+                "Side-swept bangs": "sidebangs", "Layered cut with bangs": "bangs", "Textured fringe": "bangs"
+            };
+
+            const CUTS = [
+                { group: "Short & fade", items: [
+                    { id: "bald", label: "Bald (Kalbo)" }, { id: "buzz", label: "Buzz cut" }, { id: "crew", label: "Crew cut" },
+                    { id: "pixie", label: "Pixie cut" }, { id: "short", label: "Short crop" }, { id: "undercut", label: "Undercut" },
+                    { id: "taper", label: "Taper fade" }, { id: "mohawk", label: "Mohawk" }, { id: "fauxhawk", label: "Faux hawk" }
+                ] },
+                { group: "Length", items: [
+                    { id: "bob", label: "Bob" }, { id: "lob", label: "Lob (long bob)" }
+                ] },
+                { group: "Bangs", items: [
+                    { id: "bangs", label: "Bangs (fringe)" }, { id: "sidebangs", label: "Side-swept bangs" }
+                ] }
+            ];
+
+            const COLORS = [
+                { name: "Jet Black", rgb: [18, 15, 15] },
+                { name: "Soft Black", rgb: [40, 33, 31] },
+                { name: "Dark Brown", rgb: [66, 40, 27] },
+                { name: "Chocolate", rgb: [92, 56, 36] },
+                { name: "Chestnut", rgb: [122, 70, 42] },
+                { name: "Auburn", rgb: [130, 52, 33] },
+                { name: "Copper", rgb: [178, 84, 40] },
+                { name: "Ginger", rgb: [205, 108, 52] },
+                { name: "Honey Blonde", rgb: [196, 152, 84] },
+                { name: "Golden Blonde", rgb: [222, 182, 100] },
+                { name: "Ash Blonde", rgb: [196, 178, 140] },
+                { name: "Platinum", rgb: [236, 228, 208] },
+                { name: "Silver", rgb: [188, 190, 196] },
+                { name: "Burgundy", rgb: [110, 22, 48] },
+                { name: "Plum", rgb: [92, 40, 96] },
+                { name: "Rose Pink", rgb: [226, 120, 160] },
+                { name: "Violet", rgb: [130, 84, 200] },
+                { name: "Ocean Blue", rgb: [40, 110, 200] },
+                { name: "Teal", rgb: [30, 150, 150] },
+                { name: "Emerald", rgb: [30, 140, 84] }
+            ];
+
+            var MODE_IDS = { orig: 0, bald: 1, buzz: 2, crew: 3, pixie: 4, short: 5, undercut: 6, taper: 7, mohawk: 8, fauxhawk: 9, bob: 10, lob: 11, bangs: 12, sidebangs: 13 };
+
+            var view = document.getElementById('view');
+            var ctx = view.getContext('2d', { willReadFrequently: true });
+            var video = document.getElementById('video');
+            var guideEl = document.getElementById('guide');
+            var phEl = document.getElementById('placeholder');
+            var badgeEl = document.getElementById('badge');
+            var startBtn = document.getElementById('startBtn');
+            var finishBtn = document.getElementById('finishBtn');
+            var statusEl = document.getElementById('status');
+            var looksBox = document.getElementById('looks');
+            var recsBox = document.getElementById('recs');
+            var finalBox = document.getElementById('final');
+            var choiceNote = document.getElementById('choiceNote');
+
+            var mp = null, visionFiles = null, faceLm = null, segmenter = null;
+            var stream = null, running = false, rafId = 0;
+            var lastFaceTs = 0, lastSegTs = 0, frameNo = 0, missing = 0;
+            var sm = null;
+            var ema = null, samples = 0, shape = null, candCount = 0;
+            var mode = 'orig', hairColor = null, colorName = null, chosen = null;
+            var hairProb = null, maskW = 0, maskH = 0;
+            var alphaBuf = null, hairLum = 0.2, hairAvgC = [30, 24, 20], hairCount = 0, skinEma = null, colorStrength = 0.9;
+            var LW = 96, LH = 72;
+            var NEEDED = [10, 152, 234, 454, 33, 263, 151, 205, 425, 9, 172, 397, 54, 284];
+
+            function setStatus(msg) { statusEl.textContent = msg; }
+            function setBadge(msg) { badgeEl.textContent = msg; badgeEl.style.display = msg ? 'block' : 'none'; }
+
+            async function getVision() {
+                if (!mp) mp = await import(MP_URL);
+                if (!visionFiles) visionFiles = await mp.FilesetResolver.forVisionTasks(WASM_URL);
+                return visionFiles;
+            }
+
+            async function ensureFace() {
+                if (faceLm) return;
+                setStatus('Loading the AI model (first time only, needs internet)...');
+                var vision = await getVision();
+                faceLm = await mp.FaceLandmarker.createFromOptions(vision, {
+                    baseOptions: { modelAssetPath: FACE_MODEL },
+                    runningMode: 'VIDEO',
+                    numFaces: 1
+                });
+            }
+
+            async function ensureSegmenter() {
+                if (segmenter) return true;
+                setStatus('Loading the hairstyle preview model...');
+                try {
+                    var vision = await getVision();
+                    segmenter = await mp.ImageSegmenter.createFromOptions(vision, {
+                        baseOptions: { modelAssetPath: SEG_MODEL },
+                        runningMode: 'VIDEO',
+                        outputCategoryMask: false,
+                        outputConfidenceMasks: true
+                    });
+                    setStatus('');
+                    return true;
+                } catch (e) {
+                    console.error(e);
+                    setStatus('Could not load the preview model. Please check your internet connection.');
+                    return false;
+                }
+            }
+
+            /* ---------- Face shape ---------- */
+            function smoothPoints(pts) {
+                if (!sm) {
+                    sm = {};
+                    NEEDED.forEach(function (i) { sm[i] = { x: pts[i].x, y: pts[i].y }; });
+                } else {
+                    NEEDED.forEach(function (i) {
+                        sm[i].x += (pts[i].x - sm[i].x) * 0.45;
+                        sm[i].y += (pts[i].y - sm[i].y) * 0.45;
+                    });
+                }
+            }
+
+            function ratiosOf(pts, w, h) {
+                function d(a, b) {
+                    var dx = (pts[a].x - pts[b].x) * w;
+                    var dy = (pts[a].y - pts[b].y) * h;
+                    return Math.sqrt(dx * dx + dy * dy);
+                }
+                var length = d(10, 152);
+                var cheek = d(234, 454);
+                var jaw = d(172, 397);
+                var forehead = d(54, 284);
+                return { lw: length / cheek, jawR: jaw / cheek, foreR: forehead / cheek };
+            }
+
+            function classify(r) {
+                if (r.lw >= 1.5) return 'Oblong';
+                if (r.lw <= 1.25) return r.jawR >= 0.82 ? 'Square' : 'Round';
+                if (r.foreR > r.jawR + 0.12 && r.jawR < 0.75) return 'Heart';
+                if (r.jawR >= 0.85) return 'Square';
+                return 'Oval';
+            }
+
+            function updateScan(pts, w, h) {
+                var r = ratiosOf(pts, w, h);
+                if (!ema) { ema = { lw: r.lw, jawR: r.jawR, foreR: r.foreR }; }
+                else {
+                    ema.lw += (r.lw - ema.lw) * 0.1;
+                    ema.jawR += (r.jawR - ema.jawR) * 0.1;
+                    ema.foreR += (r.foreR - ema.foreR) * 0.1;
+                }
+                samples++;
+                var cand = classify(ema);
+
+                if (!shape) {
+                    if (samples >= 15) { shape = cand; renderRecs(); finishBtn.disabled = false; }
+                } else if (cand !== shape) {
+                    candCount++;
+                    if (candCount >= 12) { shape = cand; candCount = 0; renderRecs(); }
+                } else {
+                    candCount = 0;
+                }
+
+                if (!shape) setBadge('Scanning... ' + Math.min(99, Math.round(samples * 100 / 15)) + '%');
+                else setBadge('Face shape: ' + shape);
+            }
+
+            /* ---------- Recommendations UI ---------- */
+            function makeChip(label, attr, value, onClick) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'chipbtn';
+                b.textContent = label;
+                b.setAttribute(attr, value);
+                b.addEventListener('click', onClick);
+                return b;
+            }
+
+            function refreshActive() {
+                document.querySelectorAll('[data-pick]').forEach(function (el) {
+                    el.classList.toggle('on', el.getAttribute('data-pick') === chosen);
+                });
+                document.querySelectorAll('[data-look]').forEach(function (el) {
+                    el.classList.toggle('on', el.getAttribute('data-look') === mode);
+                });
+                document.querySelectorAll('[data-color]').forEach(function (el) {
+                    var v = el.getAttribute('data-color');
+                    var on = (v === 'custom') ? (colorName && colorName.indexOf('Custom') === 0) : (v === (colorName || ''));
+                    el.classList.toggle('on', !!on);
+                });
+            }
+
+            function renderRecs() {
+                var s = STYLES[shape];
+                document.getElementById('shapeName').textContent = 'Your face shape: ' + shape;
+                document.getElementById('shapeDesc').textContent = s.desc;
+                var wBox = document.getElementById('womenChips');
+                var mBox = document.getElementById('menChips');
+                wBox.innerHTML = '';
+                mBox.innerHTML = '';
+                s.women.forEach(function (n) { wBox.appendChild(makeChip(n, 'data-pick', n, function () { chooseStyle(n); })); });
+                s.men.forEach(function (n) { mBox.appendChild(makeChip(n, 'data-pick', n, function () { chooseStyle(n); })); });
+                recsBox.style.display = 'block';
+                refreshActive();
+            }
+
+            function wantSegmenter() {
+                if (mode !== 'orig' || hairColor) ensureSegmenter();
+            }
+
+            function chooseStyle(name) {
+                chosen = name;
+                var m = PREVIEW[name];
+                if (m) {
+                    mode = m;
+                    choiceNote.textContent = 'Previewing: ' + name + '. Tap Finish & Save when you are happy with it.';
+                    wantSegmenter();
+                } else {
+                    choiceNote.textContent = 'Selected: ' + name + ' (no live preview for this style yet). Tap Finish & Save to keep it.';
+                }
+                refreshActive();
+            }
+
+            function setLook(id, label) {
+                mode = id;
+                if (id === 'orig') {
+                    hairColor = null; colorName = null; chosen = null;
+                    choiceNote.textContent = '';
+                } else {
+                    chosen = label;
+                    choiceNote.textContent = 'Previewing: ' + label + '. Tap Finish & Save when you are happy with it.';
+                    wantSegmenter();
+                }
+                refreshActive();
+            }
+
+            function setColor(c) {
+                if (c === null) { hairColor = null; colorName = null; }
+                else if (colorName === c.name) { hairColor = null; colorName = null; }
+                else { hairColor = c.rgb; colorName = c.name; wantSegmenter(); }
+                refreshActive();
+            }
+
+            function hexToRgb(hex) {
+                var v = parseInt(hex.replace('#', ''), 16);
+                return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+            }
+
+            function buildLooks() {
+                var cutBox = document.getElementById('cutBox');
+                var crow = document.getElementById('colorRow');
+                cutBox.innerHTML = '';
+                crow.innerHTML = '';
+
+                var top = document.createElement('div');
+                top.className = 'row';
+                top.appendChild(makeChip('Original', 'data-look', 'orig', function () { setLook('orig', 'Original'); }));
+                cutBox.appendChild(top);
+
+                CUTS.forEach(function (g) {
+                    var h = document.createElement('h4');
+                    h.textContent = g.group;
+                    cutBox.appendChild(h);
+                    var row = document.createElement('div');
+                    row.className = 'row';
+                    g.items.forEach(function (l) {
+                        row.appendChild(makeChip(l.label, 'data-look', l.id, function () { setLook(l.id, l.label); }));
+                    });
+                    cutBox.appendChild(row);
+                });
+
+                var none = makeChip('', 'data-color', '', function () { setColor(null); });
+                none.className = 'swatch none';
+                none.title = 'Natural color';
+                crow.appendChild(none);
+
+                COLORS.forEach(function (c) {
+                    var b = makeChip('', 'data-color', c.name, function () { setColor(c); });
+                    b.className = 'swatch';
+                    b.title = c.name;
+                    b.style.background = 'rgb(' + c.rgb[0] + ',' + c.rgb[1] + ',' + c.rgb[2] + ')';
+                    crow.appendChild(b);
+                });
+
+                var lab = document.createElement('label');
+                lab.className = 'swatch custom';
+                lab.title = 'Pick any color';
+                lab.setAttribute('data-color', 'custom');
+                var inp = document.createElement('input');
+                inp.type = 'color';
+                inp.value = '#c0392b';
+                inp.addEventListener('input', function () {
+                    hairColor = hexToRgb(inp.value);
+                    colorName = 'Custom ' + inp.value;
+                    wantSegmenter();
+                    refreshActive();
+                });
+                lab.appendChild(inp);
+                crow.appendChild(lab);
+
+                document.getElementById('strength').addEventListener('input', function (e) {
+                    colorStrength = e.target.value / 100;
+                });
+            }
+
+            /* ---------- Hair filter ---------- */
+            function blurMask(src, w, h) {
+                var tmp = new Float32Array(src.length);
+                var out = new Float32Array(src.length);
+                var x, y, xm, xp, ym, yp;
+                for (y = 0; y < h; y++) {
+                    for (x = 0; x < w; x++) {
+                        xm = x > 0 ? x - 1 : x;
+                        xp = x < w - 1 ? x + 1 : x;
+                        tmp[y * w + x] = (src[y * w + xm] + src[y * w + x] + src[y * w + xp]) / 3;
+                    }
+                }
+                for (y = 0; y < h; y++) {
+                    ym = y > 0 ? y - 1 : y;
+                    yp = y < h - 1 ? y + 1 : y;
+                    for (x = 0; x < w; x++) {
+                        out[y * w + x] = (tmp[ym * w + x] + tmp[y * w + x] + tmp[yp * w + x]) / 3;
+                    }
+                }
+                return out;
+            }
+
+            function runSegmentation(ts) {
+                var t = Math.max(lastSegTs + 1, ts);
+                lastSegTs = t;
+                try {
+                    segmenter.segmentForVideo(video, t, function (result) {
+                        var m = result.confidenceMasks && result.confidenceMasks[1];
+                        if (!m) return;
+                        var w = m.width, h = m.height;
+                        var cur = blurMask(m.getAsFloat32Array(), w, h);
+                        if (hairProb && hairProb.length === cur.length && maskW === w) {
+                            for (var i = 0; i < cur.length; i++) cur[i] = hairProb[i] * 0.45 + cur[i] * 0.55;
+                        }
+                        hairProb = cur;
+                        maskW = w;
+                        maskH = h;
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // Malambot (bilinear) na pagbasa ng mask para hindi lumabas na kagat-kagat ang gilid
+            function hairAt(x, y, cw, ch) {
+                var fx = (x + 0.5) * maskW / cw - 0.5;
+                var fy = (y + 0.5) * maskH / ch - 0.5;
+                if (fx < 0) fx = 0;
+                if (fy < 0) fy = 0;
+                var x0 = Math.floor(fx), y0 = Math.floor(fy);
+                if (x0 > maskW - 1) x0 = maskW - 1;
+                if (y0 > maskH - 1) y0 = maskH - 1;
+                var x1 = Math.min(maskW - 1, x0 + 1), y1 = Math.min(maskH - 1, y0 + 1);
+                var tx = fx - x0, ty = fy - y0;
+                var p = (hairProb[y0 * maskW + x0] * (1 - tx) + hairProb[y0 * maskW + x1] * tx) * (1 - ty) +
+                        (hairProb[y1 * maskW + x0] * (1 - tx) + hairProb[y1 * maskW + x1] * tx) * ty;
+                var t = (p - 0.3) / 0.4;
+                if (t <= 0) return 0;
+                if (t >= 1) return 1;
+                return t * t * (3 - 2 * t);
+            }
+
+            // Kinukuwenta ang alpha ng buhok sa bawat pixel, at ang karaniwang liwanag at kulay ng buhok
+            function computeAlpha(d, cw, ch) {
+                var n = cw * ch;
+                if (!alphaBuf || alphaBuf.length !== n) alphaBuf = new Float32Array(n);
+                var sumL = 0, cnt = 0, sr = 0, sg = 0, sb = 0;
+                for (var y = 0; y < ch; y++) {
+                    for (var x = 0; x < cw; x++) {
+                        var a = hairAt(x, y, cw, ch);
+                        alphaBuf[y * cw + x] = a;
+                        if (a > 0.8 && ((x + y) & 3) === 0) {
+                            var k = (y * cw + x) * 4;
+                            sr += d[k]; sg += d[k + 1]; sb += d[k + 2];
+                            sumL += (0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2]) / 255;
+                            cnt++;
+                        }
+                    }
+                }
+                hairCount = cnt;
+                if (cnt > 0) {
+                    var l = sumL / cnt;
+                    hairLum = hairLum ? hairLum * 0.85 + l * 0.15 : l;
+                    hairAvgC = [sr / cnt, sg / cnt, sb / cnt];
+                }
+            }
+
+            function avgAt(d, cw, ch, x, y) {
+                var r = 0, g = 0, b = 0, n = 0;
+                for (var dy = -2; dy <= 2; dy++) {
+                    for (var dx = -2; dx <= 2; dx++) {
+                        var xx = Math.min(cw - 1, Math.max(0, Math.round(x + dx)));
+                        var yy = Math.min(ch - 1, Math.max(0, Math.round(y + dy)));
+                        var k = (yy * cw + xx) * 4;
+                        r += d[k]; g += d[k + 1]; b += d[k + 2]; n++;
+                    }
+                }
+                return [r / n, g / n, b / n];
+            }
+
+            function blurPass(src, w, h, r) {
+                var tmp = new Float32Array(src.length);
+                var out = new Float32Array(src.length);
+                var n = 2 * r + 1;
+                for (var y = 0; y < h; y++) {
+                    for (var x = 0; x < w; x++) {
+                        var s = 0;
+                        for (var k = -r; k <= r; k++) {
+                            var xx = Math.min(w - 1, Math.max(0, x + k));
+                            s += src[y * w + xx];
+                        }
+                        tmp[y * w + x] = s / n;
+                    }
+                }
+                for (var y2 = 0; y2 < h; y2++) {
+                    for (var x2 = 0; x2 < w; x2++) {
+                        var s2 = 0;
+                        for (var k2 = -r; k2 <= r; k2++) {
+                            var yy = Math.min(h - 1, Math.max(0, y2 + k2));
+                            s2 += tmp[yy * w + x2];
+                        }
+                        out[y2 * w + x2] = s2 / n;
+                    }
+                }
+                return out;
+            }
+
+            // Gumagawa ng malabong "background" na ipapalit sa buhok na tinanggal
+            function buildPlate(d, cw, ch) {
+                var n = LW * LH;
+                var R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n), W = new Float32Array(n);
+                var sr = 0, sg = 0, sb = 0, sw = 0;
+                for (var j = 0; j < LH; j++) {
+                    for (var i = 0; i < LW; i++) {
+                        var x = Math.min(cw - 1, Math.floor((i + 0.5) * cw / LW));
+                        var y = Math.min(ch - 1, Math.floor((j + 0.5) * ch / LH));
+                        var w = 1 - alphaBuf[y * cw + x];
+                        var k = (y * cw + x) * 4;
+                        var idx = j * LW + i;
+                        R[idx] = d[k] * w; G[idx] = d[k + 1] * w; B[idx] = d[k + 2] * w; W[idx] = w;
+                        sr += R[idx]; sg += G[idx]; sb += B[idx]; sw += w;
+                    }
+                }
+                var mr = sw > 0 ? sr / sw : 128, mg = sw > 0 ? sg / sw : 128, mb = sw > 0 ? sb / sw : 128;
+                for (var p = 0; p < 8; p++) {
+                    R = blurPass(R, LW, LH, 3);
+                    G = blurPass(G, LW, LH, 3);
+                    B = blurPass(B, LW, LH, 3);
+                    W = blurPass(W, LW, LH, 3);
+                }
+                var plate = new Uint8ClampedArray(n * 3);
+                for (var q = 0; q < n; q++) {
+                    if (W[q] > 1e-7) {
+                        plate[q * 3] = R[q] / W[q];
+                        plate[q * 3 + 1] = G[q] / W[q];
+                        plate[q * 3 + 2] = B[q] / W[q];
+                    } else {
+                        plate[q * 3] = mr; plate[q * 3 + 1] = mg; plate[q * 3 + 2] = mb;
+                    }
+                }
+                return plate;
+            }
+
+            function sampleSkin(d, cw, ch, P) {
+                var ids = [151, 205, 425, 9];
+                var rs = [], gs = [], bs = [];
+                ids.forEach(function (i) {
+                    var p = P(i);
+                    var c = avgAt(d, cw, ch, p.x, p.y);
+                    rs.push(c[0]); gs.push(c[1]); bs.push(c[2]);
+                });
+                function med(a) {
+                    a.sort(function (x, y) { return x - y; });
+                    return (a[1] + a[2]) / 2;
+                }
+                return [med(rs), med(gs), med(bs)];
+            }
+
+            // Bangs: hinihila pababa ang sarili mong buhok (kulay at hibla) sa noo
+            function paintFringe(d, cw, ch, sideSwept, G) {
+                if (hairCount < 40) return;
+                var halfW = G.fw * 0.46;
+                var yTop = G.topY - 0.02 * G.fh;
+                var yBase = G.browY - 0.03 * G.fh;
+                var x0 = Math.max(0, Math.floor(G.ecx - halfW));
+                var x1 = Math.min(cw - 1, Math.ceil(G.ecx + halfW));
+                var maxUp = Math.floor(0.5 * G.fh);
+
+                for (var x = x0; x <= x1; x++) {
+                    var u = (x - G.ecx) / halfW;
+                    var yb = sideSwept ? (yBase - 0.12 * G.fh * u) : (yBase - 0.03 * G.fh * u * u);
+                    yb += 0.012 * G.fh * Math.sin(x * 0.45) + 0.008 * G.fh * Math.sin(x * 1.3 + 1);
+
+                    var cr = hairAvgC[0], cg = hairAvgC[1], cb = hairAvgC[2];
+                    var ys = Math.floor(yTop) - 2;
+                    for (var j = 0; j < maxUp; j++) {
+                        var yy = ys - j;
+                        if (yy < 0) break;
+                        if (alphaBuf[yy * cw + x] > 0.7) {
+                            var kk = (yy * cw + x) * 4;
+                            cr = d[kk]; cg = d[kk + 1]; cb = d[kk + 2];
+                            break;
+                        }
+                    }
+
+                    var yStart = Math.max(0, Math.floor(yTop));
+                    var yEnd = Math.min(ch - 1, Math.floor(yb));
+                    var sideA = Math.min(1, Math.max(0, (1 - Math.abs(u)) / 0.12));
+                    for (var y = yStart; y <= yEnd; y++) {
+                        var t = (y - yTop) / Math.max(1, yb - yTop);
+                        var sh = (1 - 0.22 * t) * (1 + 0.09 * Math.sin(x * 1.9));
+                        var edge = Math.min(1, Math.max(0, (yb - y) / 3));
+                        var aa = edge * sideA;
+                        var k = (y * cw + x) * 4;
+                        d[k] = d[k] * (1 - aa) + Math.min(255, cr * sh) * aa;
+                        d[k + 1] = d[k + 1] * (1 - aa) + Math.min(255, cg * sh) * aa;
+                        d[k + 2] = d[k + 2] * (1 - aa) + Math.min(255, cb * sh) * aa;
+                    }
+                }
+            }
+
+            function applyFilter(img, cw, ch) {
+                var d = img.data;
+                var M = MODE_IDS[mode] || 0;
+                function P(i) { return { x: sm[i].x * cw, y: sm[i].y * ch }; }
+                var top = P(10), chin = P(152), lc = P(234), rc = P(454);
+                var fh = chin.y - top.y;
+                var fw = Math.abs(rc.x - lc.x);
+                if (fh < 10 || fw < 10) return;
+
+                computeAlpha(d, cw, ch);
+
+                var eyeY = (P(33).y + P(263).y) / 2;
+                var browY = P(9).y - 0.02 * fh;
+                var ecx = (lc.x + rc.x) / 2;
+                var ecy = top.y + 0.12 * fh;
+                var ea = fw * 0.54;
+                var eb = fh * 0.42;
+                var faceBottom = chin.y + 0.08 * fh;
+                var yPix = eyeY + 0.05 * fh;
+                var yShort = eyeY + 0.10 * fh;
+                var yBob = chin.y;
+                var yLob = chin.y + 0.45 * fh;
+
+                var needPlate = (M >= 1 && M <= 11);
+                var needSkin = (M >= 1 && M <= 3) || (M >= 6 && M <= 9);
+                var plate = needPlate ? buildPlate(d, cw, ch) : null;
+                var skin = null;
+                if (needSkin) {
+                    var sk = sampleSkin(d, cw, ch, P);
+                    if (!skinEma) skinEma = sk;
+                    else skinEma = [skinEma[0] * 0.8 + sk[0] * 0.2, skinEma[1] * 0.8 + sk[1] * 0.2, skinEma[2] * 0.8 + sk[2] * 0.2];
+                    skin = skinEma;
+                }
+
+                var T = hairColor;
+                var lavg = hairLum + 0.03;
+
+                for (var y = 0; y < ch; y++) {
+                    for (var x = 0; x < cw; x++) {
+                        var a = alphaBuf[y * cw + x];
+                        if (a < 0.03) continue;
+
+                        var k = (y * cw + x) * 4;
+                        var r = d[k], g = d[k + 1], b = d[k + 2];
+
+                        var ex = (x - ecx) / ea, ey = (y - ecy) / eb;
+                        var rr = ex * ex + ey * ey;
+                        var belowBrow = y > browY;
+                        var inFace = (Math.abs(x - ecx) < fw * 0.5) && (y < faceBottom);
+                        var act = 0;   // 0 = iwan, 1 = balat ng ulo / maikling buhok, 2 = alisin
+                        var s = 0;     // gaano karami ng orihinal na buhok ang matitira (act 1)
+
+                        switch (M) {
+                            case 1: case 2: case 3:
+                                if (belowBrow) act = inFace ? 0 : 2;
+                                else if (rr <= (M === 3 ? 1.25 : 1.0)) { act = 1; s = (M === 1) ? 0 : (M === 2 ? 0.45 : 0.7); }
+                                else act = 2;
+                                break;
+                            case 4:
+                                if (y > yPix) act = inFace ? 0 : 2;
+                                else act = (rr <= 1.7) ? 0 : 2;
+                                break;
+                            case 5:
+                                if (y > yShort) act = inFace ? 0 : 2;
+                                break;
+                            case 6: case 7: {
+                                if (belowBrow) { act = inFace ? 0 : 2; break; }
+                                var topLimit = ecy - (M === 6 ? 0.05 : 0.35) * eb;
+                                if (y < topLimit && Math.abs(x - ecx) < ea * 1.05) act = 0;
+                                else if (rr <= 1.3) {
+                                    act = 1;
+                                    if (M === 6) s = 0.3;
+                                    else {
+                                        var f = (y - topLimit) / Math.max(1, browY - topLimit);
+                                        s = 0.6 - 0.55 * Math.min(1, Math.max(0, f));
+                                    }
+                                } else act = 2;
+                                break;
+                            }
+                            case 8: case 9: {
+                                if (belowBrow) { act = inFace ? 0 : 2; break; }
+                                var half = (M === 8) ? fw * 0.13 : fw * 0.24;
+                                if (Math.abs(x - ecx) < half) act = 0;
+                                else if (rr <= 1.3) { act = 1; s = (M === 8) ? 0.15 : 0.35; }
+                                else act = 2;
+                                break;
+                            }
+                            case 10:
+                                if (y > yBob) act = inFace ? 0 : 2;
+                                break;
+                            case 11:
+                                if (y > yLob) act = inFace ? 0 : 2;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // Kulay ng buhok (mas malambot: sinusunod ang liwanag at hibla ng sarili mong buhok)
+                        var hr = r, hg = g, hb = b;
+                        if (T) {
+                            var lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                            var rel = lum / lavg;
+                            if (rel > 2.4) rel = 2.4;
+                            var sh = 0.55 + 0.45 * rel;
+                            var gl = rel > 1.6 ? (rel - 1.6) * 45 : 0;
+                            hr = r + (Math.min(255, T[0] * sh + gl) - r) * colorStrength;
+                            hg = g + (Math.min(255, T[1] * sh + gl) - g) * colorStrength;
+                            hb = b + (Math.min(255, T[2] * sh + gl) - b) * colorStrength;
+                        }
+
+                        var nr, ng, nb;
+                        if (act === 0) {
+                            if (!T) continue;
+                            nr = hr; ng = hg; nb = hb;
+                        } else if (act === 1) {
+                            var shade = 1 - 0.22 * Math.min(rr, 1.5);
+                            nr = skin[0] * shade * (1 - s) + hr * s;
+                            ng = skin[1] * shade * (1 - s) + hg * s;
+                            nb = skin[2] * shade * (1 - s) + hb * s;
+                        } else {
+                            var pi = (Math.min(LH - 1, Math.floor(y * LH / ch)) * LW + Math.min(LW - 1, Math.floor(x * LW / cw))) * 3;
+                            nr = plate[pi]; ng = plate[pi + 1]; nb = plate[pi + 2];
+                        }
+
+                        d[k] = r + (nr - r) * a;
+                        d[k + 1] = g + (ng - g) * a;
+                        d[k + 2] = b + (nb - b) * a;
+                    }
+                }
+
+                if (M === 12 || M === 13) {
+                    paintFringe(d, cw, ch, M === 13, { ecx: ecx, fw: fw, fh: fh, topY: top.y, browY: browY });
+                }
+            }
+
+            /* ---------- Camera loop ---------- */
+            function loop() {
+                if (!running) return;
+                rafId = requestAnimationFrame(loop);
+                if (video.readyState < 2 || !video.videoWidth) return;
+
+                var vw = video.videoWidth, vh = video.videoHeight;
+                var scale = Math.min(1, 480 / Math.max(vw, vh));
+                var cw = Math.round(vw * scale), ch = Math.round(vh * scale);
+                if (view.width !== cw || view.height !== ch) { view.width = cw; view.height = ch; hairProb = null; }
+                ctx.drawImage(video, 0, 0, cw, ch);
+
+                var ts = Math.max(lastFaceTs + 1, performance.now());
+                lastFaceTs = ts;
+                var res = faceLm.detectForVideo(video, ts);
+                if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+                    missing = 0;
+                    var pts = res.faceLandmarks[0];
+                    smoothPoints(pts);
+                    updateScan(pts, cw, ch);
+                } else {
+                    missing++;
+                    if (missing > 8) setBadge('No face detected. Please face the camera.');
+                }
+
+                var wantFilter = (mode !== 'orig') || hairColor;
+                if (wantFilter && segmenter && sm && missing < 8) {
+                    frameNo++;
+                    if (frameNo % 2 === 1 || !hairProb) runSegmentation(ts);
+                    if (hairProb) {
+                        var img = ctx.getImageData(0, 0, cw, ch);
+                        applyFilter(img, cw, ch);
+                        ctx.putImageData(img, 0, 0);
+                    }
+                }
+            }
+
+            function resetState() {
+                sm = null; ema = null; samples = 0; shape = null; candCount = 0; missing = 0;
+                mode = 'orig'; hairColor = null; colorName = null; chosen = null;
+                hairProb = null; frameNo = 0; skinEma = null;
+                recsBox.style.display = 'none';
+                finalBox.style.display = 'none';
+                choiceNote.textContent = '';
+                finishBtn.disabled = true;
+                setBadge('');
+                refreshActive();
+            }
+
+            function stopCamera() {
+                running = false;
+                cancelAnimationFrame(rafId);
+                if (stream) {
+                    stream.getTracks().forEach(function (t) { t.stop(); });
+                    stream = null;
+                }
+            }
+
+            async function startCamera() {
+                stopCamera();
+                resetState();
+                setStatus('');
+                try {
+                    await ensureFace();
+                } catch (err) {
+                    console.error(err);
+                    setStatus('Could not load the AI model. Please check your internet connection and try again.');
+                    return;
+                }
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    await video.play();
+                } catch (err) {
+                    console.error(err);
+                    setStatus('Cannot open the camera. Please allow camera access in your browser.');
+                    return;
+                }
+                setStatus('');
+                phEl.style.display = 'none';
+                view.style.display = 'block';
+                guideEl.style.display = 'block';
+                startBtn.textContent = 'Restart';
+                setBadge('Scanning... 0%');
+                running = true;
+                lastFaceTs = 0;
+                loop();
+            }
+
+            async function finish() {
+                if (!shape) { setStatus('Please keep your face in view until the face shape appears.'); return; }
+                stopCamera();
+                guideEl.style.display = 'none';
+                finishBtn.disabled = true;
+                startBtn.textContent = 'Scan Again';
+
+                var s = STYLES[shape];
+                var all = s.women.concat(s.men);
+                var choice = chosen || '';
+                if (colorName) choice = choice ? (choice + ' + ' + colorName + ' color') : (colorName + ' color');
+
+                try {
+                    var token = document.querySelector('#afForm input[name="__RequestVerificationToken"]').value;
+                    var body = new URLSearchParams();
+                    body.append('__RequestVerificationToken', token);
+                    body.append('faceShape', shape);
+                    body.append('chosenStyle', choice);
+                    body.append('recommended', all.join(', '));
+                    var res = await fetch('?handler=Save', { method: 'POST', body: body });
+                    if (!res.ok) throw new Error('Save failed (' + res.status + ')');
+
+                    document.getElementById('finalText').textContent =
+                        'Face shape: ' + shape + (choice ? '  |  Your choice: ' + choice : '  |  No style chosen');
+                    finalBox.style.display = 'block';
+                    setStatus('');
+                    setBadge('Saved');
+                    finalBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (err) {
+                    console.error(err);
+                    setStatus('Could not save your recommendation. Please try again.');
+                    finishBtn.disabled = false;
+                }
+            }
+
+            buildLooks();
+            startBtn.addEventListener('click', startCamera);
+            finishBtn.addEventListener('click', finish);
+    </script>
+</body>
+</html>

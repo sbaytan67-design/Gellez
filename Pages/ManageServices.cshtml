@@ -1,0 +1,92 @@
+﻿@page
+@model ManageServicesModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage Services &amp; Prices - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed; color: #f5e1a4; padding: 24px 16px 60px; }
+        .wrap { max-width: 640px; margin: 0 auto; }
+        .back { color: #f5e1a4; text-decoration: none; font-size: .9rem; }
+        h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.7rem; margin: 14px 0 6px; }
+        .sub { font-size: .88rem; opacity: .85; line-height: 1.4; margin-bottom: 16px; }
+        .msg { padding: 10px 14px; border-radius: 12px; font-size: .88rem; margin-bottom: 12px; }
+        .msg.ok { background: rgba(52, 168, 83, .2); border: 1px solid #34a853; }
+        .msg.err { background: rgba(229, 57, 53, .2); border: 1px solid #e53935; color: #ffb4b0; }
+        .card { background: rgba(0, 0, 0, .5); border: 1px solid #d4af37; border-radius: 20px; padding: 18px; margin-bottom: 16px; }
+        .card h2 { font-size: 1.05rem; margin-bottom: 12px; }
+        input[type=text], input[type=number] { padding: 10px 12px; border-radius: 10px; border: 1px solid #d4af37; background: rgba(255, 255, 255, .08); color: #fff; font-size: .95rem; min-width: 0; }
+        .addform { display: flex; gap: 8px; flex-wrap: wrap; }
+        .addform input[type=text] { flex: 2 1 180px; }
+        .addform input[type=number] { flex: 1 1 100px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 999px; background: #d4af37; color: #000; font-size: .9rem; font-weight: 600; cursor: pointer; }
+        .btn:hover { filter: brightness(1.1); }
+        .btn.small { padding: 8px 14px; font-size: .82rem; }
+        .btn.danger { background: transparent; border: 1px solid #ff8f8a; color: #ff8f8a; }
+        .svc { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid rgba(245, 225, 164, .2); }
+        .svc:first-of-type { border-top: none; }
+        .name { flex: 1 1 140px; font-weight: 600; }
+        .priceform { display: flex; align-items: center; gap: 6px; }
+        .priceform input { width: 110px; }
+        .peso { opacity: .85; }
+        form { margin: 0; }
+        .empty { opacity: .8; font-size: .9rem; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/OwnerDashboard" class="back">&larr; Back</a>
+        <h1>Manage Services &amp; Prices</h1>
+        <p class="sub">Change a price, add a new service, or remove one. Services you add appear in the list staff choose from. Removing a service also removes it from every staff member's profile.</p>
+
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <p class="msg ok">@Model.Message</p>
+        }
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <p class="msg err">@Model.Error</p>
+        }
+
+        <div class="card">
+            <h2>Add a service</h2>
+            <form method="post" asp-page-handler="Add" class="addform">
+                <input type="text" name="name" placeholder="Service name" maxlength="100" required />
+                <input type="number" name="price" placeholder="Price" min="0" step="0.01" required />
+                <button type="submit" class="btn">Add</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Current services</h2>
+            @if (Model.Services.Count == 0)
+            {
+                <p class="empty">No services yet.</p>
+            }
+            @foreach (var s in Model.Services)
+            {
+                var priceText = s.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                <div class="svc">
+                    <div class="name">@s.Name</div>
+                    <form method="post" asp-page-handler="Update" class="priceform">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <span class="peso">&#8369;</span>
+                        <input type="number" name="price" value="@priceText" min="0" step="0.01" required />
+                        <button type="submit" class="btn small">Save</button>
+                    </form>
+                    <form method="post" asp-page-handler="Remove" onsubmit="return confirm('Remove this service?');">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit" class="btn small danger">Remove</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>

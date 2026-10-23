@@ -1,0 +1,64 @@
+﻿@page
+@model MyHistoryModel
+@{
+    Layout = null;
+    Func<decimal, string> peso = v => "\u20B1" + v.ToString("N2");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My History - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed; color: #f5e1a4; padding: 24px 16px 60px; }
+        .wrap { max-width: 480px; margin: 0 auto; }
+        .back { color: #f5e1a4; text-decoration: none; font-size: .9rem; }
+        h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.8rem; margin: 14px 0 6px; }
+        .total { font-size: .9rem; opacity: .9; margin-bottom: 14px; }
+        .msg { padding: 10px 14px; border-radius: 12px; font-size: .88rem; margin-bottom: 12px; background: rgba(229, 57, 53, .2); border: 1px solid #e53935; color: #ffb4b0; }
+        .appt { display: flex; gap: 14px; align-items: center; background: rgba(0, 0, 0, .5); border: 1px solid rgba(212, 175, 55, .6); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+        .date { flex: 0 0 64px; text-align: center; background: rgba(245, 225, 164, .18); border-radius: 14px; padding: 8px 4px; }
+        .date b { display: block; font-size: 1.05rem; }
+        .date span { font-size: .75rem; opacity: .85; }
+        .info { flex: 1; font-size: .9rem; line-height: 1.5; min-width: 0; }
+        .info small { opacity: .8; }
+        .tag { padding: 4px 12px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+        .tag.done { background: rgba(52, 168, 83, .25); color: #a8e6b7; border: 1px solid #34a853; }
+        .tag.cancel { background: rgba(229, 57, 53, .2); color: #ffb4b0; border: 1px solid #e53935; }
+        .empty { opacity: .85; font-size: .95rem; padding: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/CustomerDashboard" class="back">&larr; Back</a>
+        <h1>My History</h1>
+        <p class="total">Total spent on completed visits: <strong>@peso(Model.TotalSpent)</strong></p>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="msg">@Model.ErrorMessage</p>
+        }
+
+        @if (Model.Items.Count == 0)
+        {
+            <p class="empty">No past appointments yet.</p>
+        }
+
+        @foreach (var a in Model.Items)
+        {
+            bool cancelled = a.Status == "Cancelled";
+            <div class="appt">
+                <div class="date"><b>@a.When.ToString("MMM d")</b><span>@a.When.ToString("yyyy")</span></div>
+                <div class="info">
+                    <strong>@a.Service</strong><br />
+                    @a.When.ToString("ddd, h:mm tt") with @(string.IsNullOrEmpty(a.StylistName) ? "any stylist" : a.StylistName)<br />
+                    <small>@peso(a.Price)</small>
+                </div>
+                <span class="tag @(cancelled ? "cancel" : "done")">@(cancelled ? "Cancelled" : "Completed")</span>
+            </div>
+        }
+    </div>
+</body>
+</html>

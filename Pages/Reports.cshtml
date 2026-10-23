@@ -1,0 +1,384 @@
+﻿@page
+@model ReportsModel
+@{
+    Layout = null;
+    var d = Model.Data;
+    decimal maxDay = (d != null && d.ByDay.Count > 0) ? d.ByDay.Max(x => x.Sales) : 0m;
+    Func<decimal, string> money = v => "\u20B1" + v.ToString("N2");
+    Func<decimal, int> pct = v => maxDay > 0 ? (int)(v / maxDay * 100) : 0;
+    string anchorText = Model.Anchor.ToString("yyyy-MM-dd");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reports - Gellez Beauty Salon</title>
+    <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                font-family: 'Segoe UI', sans-serif;
+                background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed;
+                color: #f5e1a4;
+                padding: 24px 16px 60px;
+            }
+
+            .wrap {
+                max-width: 760px;
+                margin: 0 auto;
+            }
+
+            .back {
+                color: #f5e1a4;
+                text-decoration: none;
+                font-size: .9rem;
+            }
+
+            h1 {
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: 1.7rem;
+                margin: 14px 0 12px;
+            }
+
+            .tabs {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+
+            .tab {
+                padding: 8px 18px;
+                border-radius: 999px;
+                border: 1px solid #d4af37;
+                color: #f5e1a4;
+                text-decoration: none;
+                font-size: .88rem;
+                font-weight: 600;
+            }
+
+                .tab.on {
+                    background: #d4af37;
+                    color: #000;
+                }
+
+            .nav {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-bottom: 16px;
+            }
+
+            .arrow {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                border: 1px solid #d4af37;
+                color: #f5e1a4;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+            }
+
+            .range {
+                flex: 1 1 160px;
+                font-weight: 700;
+                font-size: 1.05rem;
+                text-align: center;
+            }
+
+            .go {
+                display: flex;
+                gap: 6px;
+            }
+
+                .go input {
+                    padding: 8px 10px;
+                    border-radius: 10px;
+                    border: 1px solid #d4af37;
+                    background: rgba(255, 255, 255, .08);
+                    color: #fff;
+                    font-size: .88rem;
+                }
+
+            .btn {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 999px;
+                background: #d4af37;
+                color: #000;
+                font-size: .85rem;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+                .btn.outline {
+                    background: transparent;
+                    border: 1px solid #d4af37;
+                    color: #f5e1a4;
+                }
+
+            .cards {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+
+            .stat {
+                background: rgba(0, 0, 0, .5);
+                border: 1px solid #d4af37;
+                border-radius: 16px;
+                padding: 14px;
+                text-align: center;
+            }
+
+                .stat .v {
+                    font-size: 1.35rem;
+                    font-weight: 700;
+                }
+
+                .stat .l {
+                    font-size: .75rem;
+                    opacity: .8;
+                    margin-top: 4px;
+                }
+
+            .card {
+                background: rgba(0, 0, 0, .5);
+                border: 1px solid #d4af37;
+                border-radius: 20px;
+                padding: 16px;
+                margin-bottom: 14px;
+            }
+
+                .card h2 {
+                    font-size: 1rem;
+                    margin-bottom: 10px;
+                }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: .88rem;
+            }
+
+            th, td {
+                text-align: left;
+                padding: 8px 6px;
+                border-top: 1px solid rgba(245, 225, 164, .2);
+            }
+
+            th {
+                font-size: .75rem;
+                opacity: .8;
+                border-top: none;
+            }
+
+                td.num, th.num {
+                    text-align: right;
+                }
+
+            .bar-row {
+                display: grid;
+                grid-template-columns: 96px 1fr 90px;
+                gap: 8px;
+                align-items: center;
+                font-size: .8rem;
+                padding: 3px 0;
+            }
+
+            .bar {
+                height: 12px;
+                border-radius: 6px;
+                background: rgba(245, 225, 164, .12);
+                overflow: hidden;
+            }
+
+                .bar span {
+                    display: block;
+                    height: 100%;
+                    background: #d4af37;
+                    border-radius: 6px;
+                }
+
+            .bar-row .amt {
+                text-align: right;
+            }
+
+            .empty {
+                opacity: .8;
+                font-size: .9rem;
+                padding: 6px 0;
+            }
+
+            .note {
+                font-size: .75rem;
+                opacity: .7;
+                line-height: 1.4;
+                margin-top: 6px;
+            }
+
+            .err {
+                color: #ffb4b0;
+            }
+
+            @@media (max-width: 520px) {
+                .cards {
+                    grid-template-columns: 1fr;
+                }
+
+                .bar-row {
+                    grid-template-columns: 78px 1fr 80px;
+                }
+            }
+
+            @@media print {
+                body {
+                    background: #fff;
+                    color: #000;
+                }
+
+                .noprint {
+                    display: none !important;
+                }
+
+                .card, .stat {
+                    background: #fff;
+                    border-color: #999;
+                }
+
+                .bar span {
+                    background: #555;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/OwnerDashboard" class="back noprint">&larr; Back</a>
+        <h1>Reports</h1>
+
+        <div class="tabs noprint">
+            <a class="tab @(Model.Period == "day" ? "on" : "")" href="/Reports?period=day&amp;date=@anchorText">Daily</a>
+            <a class="tab @(Model.Period == "week" ? "on" : "")" href="/Reports?period=week&amp;date=@anchorText">Weekly</a>
+            <a class="tab @(Model.Period == "month" ? "on" : "")" href="/Reports?period=month&amp;date=@anchorText">Monthly</a>
+        </div>
+
+        <div class="nav">
+            <a class="arrow noprint" href="@Model.PrevUrl" title="Previous">&lsaquo;</a>
+            <div class="range">@Model.RangeLabel</div>
+            <a class="arrow noprint" href="@Model.NextUrl" title="Next">&rsaquo;</a>
+            <form method="get" class="go noprint">
+                <input type="hidden" name="period" value="@Model.Period" />
+                <input type="date" name="date" value="@anchorText" />
+                <button type="submit" class="btn">Go</button>
+            </form>
+            <button type="button" class="btn outline noprint" onclick="window.print()">Print / Save PDF</button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="err">@Model.ErrorMessage</p>
+        }
+
+        @if (d != null)
+        {
+            <div class="cards">
+                <div class="stat"><div class="v">@d.Total</div><div class="l">Appointments</div></div>
+                <div class="stat"><div class="v">@money(d.Sales)</div><div class="l">Total sales</div></div>
+                <div class="stat"><div class="v">@d.Cancelled</div><div class="l">Cancelled</div></div>
+            </div>
+
+            @if (Model.Period != "day")
+            {
+                <div class="card">
+                    <h2>Sales by day</h2>
+                    @foreach (var row in d.ByDay)
+                    {
+                        <div class="bar-row">
+                            <div>@row.Label</div>
+                            <div class="bar"><span style="width:@(pct(row.Sales))%"></span></div>
+                            <div class="amt">@money(row.Sales) <small>(@row.Count)</small></div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="card">
+                <h2>By service</h2>
+                @if (d.ByService.Count == 0)
+                {
+                    <p class="empty">No appointments in this period.</p>
+                }
+                else
+                {
+                    <table>
+                        <tr><th>Service</th><th class="num">Count</th><th class="num">Sales</th></tr>
+                        @foreach (var row in d.ByService)
+                        {
+                            <tr><td>@row.Label</td><td class="num">@row.Count</td><td class="num">@money(row.Sales)</td></tr>
+                        }
+                    </table>
+                }
+            </div>
+
+            <div class="card">
+                <h2>By stylist</h2>
+                @if (d.ByStylist.Count == 0)
+                {
+                    <p class="empty">No appointments in this period.</p>
+                }
+                else
+                {
+                    <table>
+                        <tr><th>Stylist</th><th class="num">Count</th><th class="num">Sales</th></tr>
+                        @foreach (var row in d.ByStylist)
+                        {
+                            <tr><td>@row.Label</td><td class="num">@row.Count</td><td class="num">@money(row.Sales)</td></tr>
+                        }
+                    </table>
+                }
+            </div>
+
+            @if (Model.Period == "day")
+            {
+                <div class="card">
+                    <h2>Appointments</h2>
+                    @if (d.Items.Count == 0)
+                    {
+                        <p class="empty">No appointments on this day.</p>
+                    }
+                    else
+                    {
+                        <table>
+                            <tr><th>Time</th><th>Customer</th><th>Service</th><th>Stylist</th><th>Status</th><th class="num">Price</th></tr>
+                            @foreach (var a in d.Items)
+                            {
+                                <tr>
+                                    <td>@a.When.ToString("h:mm tt")</td>
+                                    <td>@a.Customer</td>
+                                    <td>@a.Service</td>
+                                    <td>@a.Stylist</td>
+                                    <td>@a.Status</td>
+                                    <td class="num">@money(a.Price)</td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                </div>
+            }
+
+            <p class="note">Sales are computed from the current service prices and do not include cancelled appointments.</p>
+        }
+    </div>
+</body>
+</html>

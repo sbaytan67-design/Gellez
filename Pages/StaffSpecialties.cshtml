@@ -1,0 +1,83 @@
+﻿@page
+@model StaffSpecialtiesModel
+@{
+    Layout = null;
+    var icons = new Dictionary<string, string>
+    {
+        ["Haircut"] = "✂️",
+        ["Hair Color"] = "🎨",
+        ["Rebond"] = "💆‍♀️",
+        ["Curl"] = "🌀",
+        ["Hair Treatment"] = "🧴",
+        ["Manicure"] = "💅",
+        ["Pedicure"] = "🦶",
+        ["Foot Spa"] = "🛁"
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Services - Gellez Beauty Salon</title>
+    <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed; color: #f5e1a4; padding: 24px; }
+            .card { width: 100%; max-width: 420px; background: rgba(0, 0, 0, .5); border: 1px solid #d4af37; border-radius: 20px; padding: 28px 22px; }
+            h1 { font-size: 1.45rem; text-align: center; margin-bottom: 8px; }
+            .sub { text-align: center; font-size: .88rem; opacity: .85; line-height: 1.4; margin-bottom: 18px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            .opt { position: relative; display: block; cursor: pointer; }
+            .opt input { position: absolute; opacity: 0; }
+            .opt span { display: flex; align-items: center; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid #d4af37; background: rgba(255, 255, 255, .06); font-size: .9rem; font-weight: 600; }
+            .opt em { font-style: normal; font-size: 1.2rem; }
+            .opt input:checked + span { background: #d4af37; color: #000; }
+            .opt input:focus-visible + span { outline: 2px solid #fff; }
+            .link { background: none; border: none; color: #f5e1a4; text-decoration: underline; cursor: pointer; font-size: .85rem; margin-top: 12px; }
+            .save { display: block; width: 100%; margin-top: 16px; padding: 13px; border: none; border-radius: 999px; background: #d4af37; color: #000; font-size: 1rem; font-weight: 600; cursor: pointer; }
+            .save:hover { filter: brightness(1.1); }
+            .error { margin-top: 14px; color: #ff9d9d; text-align: center; font-size: .9rem; }
+            .cancel { display: block; text-align: center; margin-top: 14px; color: #f5e1a4; font-size: .85rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>What services can you do?</h1>
+        <p class="sub">Choose the services you are capable of. You can pick as many as you like, or all of them.</p>
+
+        <form method="post">
+            <div class="grid">
+                @foreach (var s in Model.AllSpecialties)
+                {
+                    <label class="opt">
+                        <input type="checkbox" name="Selected" value="@s" @(Model.Selected.Contains(s) ? "checked" : "") />
+                        <span><em>@(icons.ContainsKey(s) ? icons[s] : "✨")</em>@s</span>
+                    </label>
+                }
+            </div>
+
+            <button type="button" class="link" id="selectAll">Select all</button>
+
+            <button type="submit" class="save">Save</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="error">@Model.ErrorMessage</p>
+        }
+
+        @if (!Model.IsFirstTime)
+        {
+            <a href="/StaffProfile" class="cancel">Cancel</a>
+        }
+    </div>
+
+    <script>
+            document.getElementById('selectAll').addEventListener('click', function () {
+                var boxes = document.querySelectorAll('input[name="Selected"]');
+                var allChecked = Array.prototype.every.call(boxes, function (b) { return b.checked; });
+                boxes.forEach(function (b) { b.checked = !allChecked; });
+            });
+    </script>
+</body>
+</html>

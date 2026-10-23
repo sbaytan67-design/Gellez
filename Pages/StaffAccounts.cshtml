@@ -1,0 +1,66 @@
+﻿@page
+@model StaffAccountsModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Staff Accounts - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed; color: #f5e1a4; padding: 24px 16px 40px; }
+        .wrap { max-width: 480px; margin: 0 auto; }
+        .back { color: #f5e1a4; text-decoration: none; font-size: .9rem; }
+        h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.7rem; margin: 14px 0 4px; }
+        .count { font-size: .88rem; opacity: .85; margin-bottom: 16px; }
+        .person { display: flex; gap: 14px; background: rgba(0, 0, 0, .5); border: 1px solid #d4af37; border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+        .pic { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #f5e1a4, #c8921a); color: #3a2a00; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; }
+        .info { flex: 1; min-width: 0; }
+        .info h2 { font-size: 1.05rem; }
+        .info .email { font-size: .8rem; opacity: .8; margin-bottom: 8px; word-break: break-all; }
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip { padding: 4px 10px; border-radius: 999px; background: rgba(245, 225, 164, .15); border: 1px solid #d4af37; font-size: .75rem; font-weight: 600; }
+        .none { font-size: .8rem; opacity: .75; }
+        .empty { text-align: center; padding: 30px 10px; opacity: .85; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/OwnerDashboard" class="back">&larr; Back</a>
+        <h1>Staff Accounts</h1>
+        <p class="count">@Model.StaffList.Count staff @(Model.StaffList.Count == 1 ? "member" : "members")</p>
+
+        @if (Model.StaffList.Count == 0)
+        {
+            <p class="empty">No staff accounts yet.</p>
+        }
+
+        @foreach (var s in Model.StaffList)
+        {
+            <div class="person">
+                <div class="pic">@(string.IsNullOrEmpty(s.FullName) ? "?" : s.FullName[..1].ToUpper())</div>
+                <div class="info">
+                    <h2>@s.FullName</h2>
+                    <p class="email">@s.Email</p>
+                    @if (s.Specialties.Count == 0)
+                    {
+                        <p class="none">No services selected yet.</p>
+                    }
+                    else
+                    {
+                        <div class="chips">
+                            @foreach (var sp in s.Specialties)
+                            {
+                                <span class="chip">@sp</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+﻿@page
+@model OwnerCreateModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Owner / Staff Sign Up - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%); color: #f5e1a4; padding: 24px; }
+        .card { width: 100%; max-width: 380px; background: rgba(0, 0, 0, .45); border: 1px solid #d4af37; border-radius: 20px; padding: 32px 28px; }
+        h1 { font-size: 1.5rem; margin-bottom: 12px; text-align: center; }
+        label { display: block; margin: 14px 0 6px; font-size: .9rem; }
+        input, select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #d4af37; background: rgba(255, 255, 255, .08); color: #fff; font-size: 1rem; }
+        select option { color: #000; }
+        button, .btn { display: block; width: 100%; margin-top: 22px; padding: 13px; border: none; border-radius: 999px; background: #d4af37; color: #000; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+        button:hover, .btn:hover { filter: brightness(1.1); }
+        .error { margin-top: 16px; color: #ff9d9d; text-align: center; font-size: .9rem; }
+        .success { text-align: center; line-height: 1.5; }
+        .links { margin-top: 18px; text-align: center; font-size: .85rem; }
+        .links a { color: #f5e1a4; }
+        .hint { font-size: .75rem; opacity: .7; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Owner / Staff Sign Up</h1>
+
+        @if (Model.Success)
+        {
+            <p class="success">Account created successfully!<br />You can now log in.</p>
+            <a href="/OwnerLogin" class="btn">Go to Login</a>
+        }
+        else
+        {
+            <form method="post">
+                <label for="FullName">Full Name</label>
+                <input id="FullName" asp-for="FullName" type="text" autocomplete="name" />
+
+                <label for="Email">Email</label>
+                <input id="Email" asp-for="Email" type="email" autocomplete="username" />
+
+                <label for="Role">Role</label>
+                <select id="Role" asp-for="Role">
+                    <option value="Staff">Staff</option>
+                    <option value="Owner">Owner</option>
+                </select>
+
+                <label for="Password">Password</label>
+                <input id="Password" asp-for="Password" type="password" autocomplete="new-password" />
+
+                <label for="ConfirmPassword">Confirm Password</label>
+                <input id="ConfirmPassword" asp-for="ConfirmPassword" type="password" autocomplete="new-password" />
+
+                <label for="AccessCode">Access Code</label>
+                <input id="AccessCode" asp-for="AccessCode" type="password" autocomplete="off" />
+                <p class="hint">Ask the salon owner for the access code.</p>
+
+                <button type="submit">Create Account</button>
+            </form>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <p class="error">@Model.ErrorMessage</p>
+            }
+        }
+
+        <div class="links">
+            <p>Already have an account? <a href="/OwnerLogin">Login</a></p>
+            <p style="margin-top:10px"><a href="/CreateAccount">Back</a></p>
+        </div>
+    </div>
+</body>
+</html>

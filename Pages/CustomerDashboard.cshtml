@@ -1,0 +1,449 @@
+﻿@page
+@model CustomerDashboardModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Home - Gellez Beauty Salon</title>
+    <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: #0b0800;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            .stage {
+                position: relative;
+                width: min(100vw, calc(100vh * 1320 / 2048));
+                margin: 0 auto;
+                container-type: inline-size;
+            }
+
+                .stage > img.bg {
+                    display: block;
+                    width: 100%;
+                    height: auto;
+                }
+
+            /* Mga link sa ibabaw ng picture */
+            .hot {
+                position: absolute;
+                display: block;
+                z-index: 2;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .tile {
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                padding-bottom: 1.8cqw;
+                border-radius: 8cqw;
+                color: #3a2a00;
+                font-weight: 700;
+                font-size: 3.3cqw;
+                text-decoration: none;
+                text-align: center;
+            }
+
+                .tile:hover {
+                    background: rgba(255, 255, 255, .18);
+                }
+
+            .t-book {
+                left: 6.8%;
+                top: 33.7%;
+                width: 39.2%;
+                height: 10.9%;
+            }
+
+            .t-catalog {
+                left: 54.7%;
+                top: 33.7%;
+                width: 39.2%;
+                height: 10.9%;
+            }
+
+            .t-appts {
+                left: 6.8%;
+                top: 46.6%;
+                width: 39.2%;
+                height: 11.3%;
+            }
+
+            .t-history {
+                left: 54.7%;
+                top: 47.2%;
+                width: 39.2%;
+                height: 10.6%;
+            }
+
+            .tile.t-ai {
+                left: 6.8%;
+                top: 60.9%;
+                width: 87.1%;
+                height: 8.3%;
+                align-items: center;
+                justify-content: flex-start;
+                padding-left: 16%;
+                padding-bottom: 0;
+                text-align: left;
+                font-size: 3.2cqw;
+                letter-spacing: .5px;
+            }
+
+            .navlink:hover {
+                background: rgba(201, 166, 122, .12);
+            }
+
+            .nav1 {
+                left: 0;
+                top: 90.1%;
+                width: 25%;
+                height: 9.9%;
+            }
+
+            .nav2 {
+                left: 25%;
+                top: 90.1%;
+                width: 25%;
+                height: 9.9%;
+            }
+
+            .nav3 {
+                left: 50%;
+                top: 90.1%;
+                width: 25%;
+                height: 9.9%;
+            }
+
+            .nav4 {
+                left: 75%;
+                top: 90.1%;
+                width: 25%;
+                height: 9.9%;
+            }
+
+            /* Profile */
+            .avatar {
+                position: absolute;
+                z-index: 3;
+                left: 4.5%;
+                top: 3%;
+                width: 9.8cqw;
+                height: 9.8cqw;
+                border-radius: 50%;
+                border: .6cqw solid #f5e1a4;
+                background: #3a2a00;
+                color: #f5e1a4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 5cqw;
+                text-decoration: none;
+                overflow: hidden;
+            }
+
+            /* Notification */
+            .bell-btn {
+                position: absolute;
+                z-index: 3;
+                right: 4.5%;
+                top: 3%;
+                width: 9.8cqw;
+                height: 9.8cqw;
+                border-radius: 50%;
+                border: .4cqw solid rgba(245, 225, 164, .6);
+                background: rgba(0, 0, 0, .25);
+                font-size: 5cqw;
+                cursor: pointer;
+            }
+
+            .badge {
+                position: absolute;
+                top: -1cqw;
+                right: -1cqw;
+                min-width: 4.4cqw;
+                height: 4.4cqw;
+                padding: 0 1cqw;
+                border-radius: 999px;
+                background: #e53935;
+                color: #fff;
+                font-size: 2.6cqw;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .notif-panel {
+                display: none;
+                position: absolute;
+                right: 4.5%;
+                top: 13.5%;
+                width: 68cqw;
+                background: #fff;
+                color: #222;
+                border-radius: 4cqw;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+                z-index: 20;
+                overflow: hidden;
+            }
+
+                .notif-panel.open {
+                    display: block;
+                }
+
+                .notif-panel h3 {
+                    padding: 3.5cqw 4cqw 2cqw;
+                    font-size: max(15px, 3.8cqw);
+                }
+
+            .notif-item {
+                padding: 2.6cqw 4cqw;
+                border-top: 1px solid #f0f0f0;
+                font-size: max(13px, 3cqw);
+            }
+
+                .notif-item small {
+                    display: block;
+                    color: #888;
+                    margin-top: .8cqw;
+                }
+
+                .notif-item.unread {
+                    background: #fff8e6;
+                }
+
+            /* Search */
+            .search {
+                position: absolute;
+                z-index: 3;
+                left: 6.8%;
+                top: 15.7%;
+                width: 86.4%;
+                height: 4.6%;
+            }
+
+                .search input {
+                    width: 100%;
+                    height: 100%;
+                    padding-left: 7.5cqw;
+                    border: .4cqw solid rgba(245, 225, 164, .55);
+                    border-radius: 999px;
+                    background: rgba(255, 255, 255, .1);
+                    color: #f5e1a4;
+                    font-size: 3.6cqw;
+                    outline: none;
+                }
+
+                    .search input::placeholder {
+                        color: rgba(245, 225, 164, .75);
+                    }
+
+            /* Welcome */
+                        .welcome {
+                position: absolute;
+                z-index: 3;
+                left: 6.8%;
+                top: 21.2%;
+                width: 86%;
+                max-height: 8.4%;
+                color: #f5e1a4;
+                font-weight: 700;
+                font-size: 6.2cqw;
+                line-height: 1.1;
+                overflow: hidden;
+                overflow-wrap: break-word;
+            }
+
+            /* Stylists */
+            .stylists-wrap {
+                position: absolute;
+                z-index: 3;
+                left: 6.8%;
+                top: 70.3%;
+                width: 86.4%;
+                height: 18.8%;
+                color: #3a2a00;
+            }
+
+                .stylists-wrap h2 {
+                    font-size: 4.6cqw;
+                    margin-bottom: 2cqw;
+                }
+
+            .stylists {
+                display: flex;
+                gap: 4cqw;
+                overflow-x: auto;
+            }
+
+            .stylist {
+                flex: 0 0 auto;
+                width: 22cqw;
+                text-align: center;
+                text-decoration: none;
+                color: #3a2a00;
+                font-size: 3cqw;
+                font-weight: 600;
+            }
+
+                .stylist .pic {
+                    width: 17cqw;
+                    height: 17cqw;
+                    margin: 0 auto 1.5cqw;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #f5e1a4, #c8921a);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 7cqw;
+                }
+
+                        button.stylist { background: none; border: none; font-family: inherit; cursor: pointer; }
+        .no-stylists { font-size: 3.2cqw; color: #6a5a3a; }
+
+        .modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, .55);
+            z-index: 50;
+            align-items: flex-end; justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .sheet {
+            position: relative;
+            width: 100%; max-width: 480px;
+            background: #fff;
+            border-radius: 28px 28px 0 0;
+            padding: 28px 24px 32px;
+            text-align: center;
+            color: #3a2a00;
+        }
+        .sheet .close { position: absolute; top: 14px; right: 16px; border: none; background: none; font-size: 1.3rem; cursor: pointer; color: #3a2a00; }
+        .m-pic { width: 84px; height: 84px; margin: 0 auto 12px; border-radius: 50%; background: linear-gradient(135deg, #f5e1a4, #c8921a); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; }
+        .sheet h3 { font-size: 1.4rem; }
+        .m-role { font-size: .85rem; opacity: .7; margin-bottom: 16px; }
+        .sheet h4 { font-size: .95rem; margin-bottom: 10px; }
+        .sheet .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .chip { padding: 7px 14px; border-radius: 999px; background: #fff0cc; border: 1px solid #d4af37; font-size: .85rem; font-weight: 600; }
+        .m-book { display: block; margin-top: 22px; padding: 13px; border-radius: 999px; background: #d4af37; color: #000; font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <main class="stage">
+        <img class="bg" src="~/images/dashboard-bg.png" alt="Gellez Beauty Salon" />
+
+        <a href="/Profile" class="avatar" title="Profile">@(string.IsNullOrEmpty(Model.FullName) ? "?" : Model.FullName[..1].ToUpper())</a>
+
+        <button type="button" class="bell-btn" id="bellBtn" aria-label="Notifications">🔔<span class="badge">2</span></button>
+        <div class="notif-panel" id="notifPanel">
+            <h3>Notifications</h3>
+            <div class="notif-item unread">Your appointment has been confirmed.<small>Sample • Just now</small></div>
+            <div class="notif-item unread">Welcome to Gellez Beauty Salon!<small>Sample • Today</small></div>
+            <div class="notif-item">New hairstyles added to the catalog.<small>Sample • Yesterday</small></div>
+        </div>
+
+        <form class="search" action="/HairCatalog" method="get">
+            <input type="text" name="q" placeholder="Search hairstyles" autocomplete="off" />
+        </form>
+
+        <p class="welcome">Welcome, @Model.FullName!</p>
+
+        <a href="/BookNow" class="hot tile t-book">Book Now!!!</a>
+        <a href="/HairCatalog" class="hot tile t-catalog">Hair Catalog</a>
+        <a href="/MyAppointments" class="hot tile t-appts">My Appointments</a>
+        <a href="/MyHistory" class="hot tile t-history">My History</a>
+        <a href="/HairstyleAI" class="hot tile t-ai">AI HAIRSTYLE RECOMMENDATION</a>
+
+                <div class="stylists-wrap">
+            <h2>Stylists</h2>
+            <div class="stylists">
+                @if (Model.Stylists.Count == 0)
+                {
+                    <p class="no-stylists">No stylists available yet.</p>
+                }
+                @foreach (var s in Model.Stylists)
+                {
+                    <button type="button" class="stylist" data-name="@s.FullName" data-services="@string.Join("|", s.Specialties)">
+                        <div class="pic">@s.FullName[..1].ToUpper()</div>
+                        @s.FullName.Split(' ')[0]
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="modal" id="stylistModal">
+            <div class="sheet">
+                <button type="button" class="close" id="closeModal" aria-label="Close">✕</button>
+                <div class="m-pic" id="mPic"></div>
+                <h3 id="mName"></h3>
+                <p class="m-role">Stylist • Gellez Beauty Salon</p>
+                <h4>Services offered</h4>
+                <div class="chips" id="mServices"></div>
+                <a href="/BookNow" class="m-book">Book Now</a>
+            </div>
+        </div>
+
+        <a href="/CustomerDashboard" class="hot navlink nav1" aria-label="Home"></a>
+        <a href="/HairCatalog" class="hot navlink nav2" aria-label="Catalog"></a>
+        <a href="/Reviews" class="hot navlink nav3" aria-label="Reviews"></a>
+        <a href="/Profile" class="hot navlink nav4" aria-label="Profile"></a>
+    </main>
+    <script>
+            var bellBtn = document.getElementById('bellBtn');
+            var panel = document.getElementById('notifPanel');
+            bellBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                panel.classList.toggle('open');
+            });
+            document.addEventListener('click', function () { panel.classList.remove('open'); });
+
+            var modal = document.getElementById('stylistModal');
+            document.querySelectorAll('.stylist').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    var name = b.getAttribute('data-name');
+                    document.getElementById('mName').textContent = name;
+                    document.getElementById('mPic').textContent = name.charAt(0).toUpperCase();
+                    var box = document.getElementById('mServices');
+                    box.innerHTML = '';
+                    (b.getAttribute('data-services') || '').split('|').forEach(function (s) {
+                        if (!s) return;
+                        var c = document.createElement('span');
+                        c.className = 'chip';
+                        c.textContent = s;
+                        box.appendChild(c);
+                    });
+                    modal.classList.add('open');
+                });
+            });
+            document.getElementById('closeModal').addEventListener('click', function () { modal.classList.remove('open'); });
+            modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });
+
+                    function fitWelcome() {
+            var w = document.querySelector('.welcome');
+            if (!w) return;
+            w.style.fontSize = '';
+            var size = parseFloat(getComputedStyle(w).fontSize);
+            while ((w.scrollHeight > w.clientHeight + 1 || w.scrollWidth > w.clientWidth + 1) && size > 9) {
+                size -= 1;
+                w.style.fontSize = size + 'px';
+            }
+        }
+        fitWelcome();
+        window.addEventListener('resize', fitWelcome);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWelcome);
+    </script>
+</body>
+</html>

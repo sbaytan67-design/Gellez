@@ -1,0 +1,167 @@
+﻿@page
+@model BookNowModel
+@{
+    Layout = null;
+    var svc = Model.SelectedService;
+    string svcEnc = svc != null ? Uri.EscapeDataString(svc.Name) : "";
+    string styEnc = Model.StylistKey != null ? Uri.EscapeDataString(Model.StylistKey) : "";
+    string dateStr = Model.SelectedDate.HasValue ? Model.SelectedDate.Value.ToString("yyyy-MM-dd") : "";
+    string minDate = DateTime.Today.ToString("yyyy-MM-dd");
+    string maxDate = DateTime.Today.AddDays(60).ToString("yyyy-MM-dd");
+    Func<decimal, string> peso = v => "\u20B1" + v.ToString("N2");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book Now - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%) fixed; color: #f5e1a4; padding: 24px 16px 60px; }
+        .wrap { max-width: 480px; margin: 0 auto; }
+        .back { color: #f5e1a4; text-decoration: none; font-size: .9rem; }
+        h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.8rem; margin: 14px 0 4px; }
+        .sub { font-size: .88rem; opacity: .85; margin-bottom: 16px; }
+        .msg { padding: 10px 14px; border-radius: 12px; font-size: .88rem; margin-bottom: 12px; background: rgba(229, 57, 53, .2); border: 1px solid #e53935; color: #ffb4b0; }
+        .card { background: rgba(0, 0, 0, .5); border: 1px solid #d4af37; border-radius: 20px; padding: 16px; margin-bottom: 14px; }
+        .card h2 { font-size: 1rem; margin-bottom: 10px; }
+        .row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { display: inline-block; padding: 9px 14px; border-radius: 14px; border: 1px solid #d4af37; color: #f5e1a4; text-decoration: none; font-size: .88rem; font-weight: 600; text-align: center; }
+        .chip small { display: block; font-weight: 400; opacity: .85; font-size: .75rem; margin-top: 2px; }
+        .chip.on { background: #d4af37; color: #000; }
+        .chip.on small { opacity: 1; }
+        .chip.off { opacity: .35; text-decoration: line-through; cursor: not-allowed; }
+        .chip.date { min-width: 64px; }
+        .datepick { display: flex; gap: 8px; margin-top: 12px; align-items: center; font-size: .82rem; }
+        .datepick input[type=date] { padding: 8px 10px; border-radius: 10px; border: 1px solid #d4af37; background: rgba(255, 255, 255, .08); color: #fff; }
+        .btn { display: block; width: 100%; margin-top: 14px; padding: 13px; border: none; border-radius: 999px; background: #d4af37; color: #000; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+        .btn.small { display: inline-block; width: auto; margin: 0; padding: 8px 16px; font-size: .85rem; }
+        .btn:hover { filter: brightness(1.1); }
+        table.sum { width: 100%; border-collapse: collapse; font-size: .92rem; }
+        table.sum td { padding: 7px 4px; border-top: 1px solid rgba(245, 225, 164, .2); }
+        table.sum tr:first-child td { border-top: none; }
+        table.sum td:first-child { opacity: .8; width: 38%; }
+        .hint { font-size: .78rem; opacity: .75; margin-top: 10px; line-height: 1.4; }
+        .empty { font-size: .9rem; opacity: .85; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/CustomerDashboard" class="back">&larr; Back</a>
+        <h1>Book Now</h1>
+        <p class="sub">Choose a service, a stylist, a date, and a time.</p>
+
+        @if (!string.IsNullOrEmpty(Model.Flash))
+        {
+            <p class="msg">@Model.Flash</p>
+        }
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="msg">@Model.ErrorMessage</p>
+        }
+
+        <div class="card">
+            <h2>1. Service</h2>
+            @if (Model.Services.Count == 0)
+            {
+                <p class="empty">No services are available yet.</p>
+            }
+            <div class="row">
+                @foreach (var s in Model.Services)
+                {
+                    <a class="chip @(svc != null && svc.Id == s.Id ? "on" : "")" href="/BookNow?service=@Uri.EscapeDataString(s.Name)">@s.Name<small>@peso(s.Price)</small></a>
+                }
+            </div>
+        </div>
+
+        @if (svc != null)
+        {
+            <div class="card">
+                <h2>2. Stylist</h2>
+                @if (Model.Stylists.Count == 0)
+                {
+                    <p class="empty">No stylist offers this service yet. Please choose another service.</p>
+                }
+                else
+                {
+                    <div class="row">
+                        <a class="chip @(Model.StylistKey == "any" ? "on" : "")" href="/BookNow?service=@svcEnc&amp;stylist=any">Any available</a>
+                        @foreach (var st in Model.Stylists)
+                        {
+                            <a class="chip @(Model.StylistKey == st.Email ? "on" : "")" href="/BookNow?service=@svcEnc&amp;stylist=@Uri.EscapeDataString(st.Email)">@st.FullName</a>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @if (svc != null && Model.StylistKey != null)
+        {
+            <div class="card">
+                <h2>3. Date</h2>
+                <div class="row">
+                    @foreach (var day in Model.Dates)
+                    {
+                        var ds = day.ToString("yyyy-MM-dd");
+                        <a class="chip date @(dateStr == ds ? "on" : "")" href="/BookNow?service=@svcEnc&amp;stylist=@styEnc&amp;date=@ds">@day.ToString("ddd")<small>@day.ToString("MMM d")</small></a>
+                    }
+                </div>
+                <form method="get" class="datepick">
+                    <input type="hidden" name="service" value="@svc.Name" />
+                    <input type="hidden" name="stylist" value="@Model.StylistKey" />
+                    <span>Other date:</span>
+                    <input type="date" name="date" min="@minDate" max="@maxDate" value="@dateStr" required />
+                    <button type="submit" class="btn small">Go</button>
+                </form>
+            </div>
+        }
+
+        @if (svc != null && Model.StylistKey != null && Model.SelectedDate != null)
+        {
+            <div class="card">
+                <h2>4. Time</h2>
+                <div class="row">
+                    @foreach (var slot in Model.Slots)
+                    {
+                        if (slot.Available)
+                        {
+                            <a class="chip @(Model.TimeKey == slot.Value ? "on" : "")" href="/BookNow?service=@svcEnc&amp;stylist=@styEnc&amp;date=@dateStr&amp;time=@slot.Value">@slot.Label</a>
+                        }
+                        else
+                        {
+                            <span class="chip off">@slot.Label</span>
+                        }
+                    }
+                </div>
+                @if (Model.Slots.All(x => !x.Available))
+                {
+                    <p class="hint">No free times on this day. Please try another date.</p>
+                }
+            </div>
+        }
+
+        @if (svc != null && Model.When != null && Model.AssignedName != null)
+        {
+            <div class="card">
+                <h2>5. Confirm</h2>
+                <table class="sum">
+                    <tr><td>Service</td><td>@svc.Name</td></tr>
+                    <tr><td>Stylist</td><td>@(Model.AssignedName + (Model.StylistKey == "any" ? " (assigned automatically)" : ""))</td></tr>
+                    <tr><td>Date</td><td>@Model.When.Value.ToString("dddd, MMM d, yyyy")</td></tr>
+                    <tr><td>Time</td><td>@Model.When.Value.ToString("h:mm tt")</td></tr>
+                    <tr><td>Price</td><td>@peso(svc.Price)</td></tr>
+                </table>
+                <p class="hint">Pay at the salon. You can cancel up to 2 hours before your appointment.</p>
+                <form method="post" asp-page-handler="Confirm">
+                    <input type="hidden" name="service" value="@svc.Name" />
+                    <input type="hidden" name="stylist" value="@Model.StylistKey" />
+                    <input type="hidden" name="date" value="@dateStr" />
+                    <input type="hidden" name="time" value="@Model.TimeKey" />
+                    <button type="submit" class="btn">Confirm booking</button>
+                </form>
+            </div>
+        }
+    </div>
+</body>
+</html>

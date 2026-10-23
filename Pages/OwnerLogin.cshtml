@@ -1,0 +1,52 @@
+﻿@page
+@model OwnerLoginModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Owner / Staff Login - Gellez Beauty Salon</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; background: linear-gradient(90deg, #000 0%, #3a2a00 50%, #c8921a 100%); color: #f5e1a4; padding: 24px; }
+        .card { width: 100%; max-width: 380px; background: rgba(0, 0, 0, .45); border: 1px solid #d4af37; border-radius: 20px; padding: 32px 28px; }
+        h1 { font-size: 1.5rem; margin-bottom: 4px; text-align: center; }
+        .sub { text-align: center; font-size: .85rem; opacity: .8; margin-bottom: 8px; }
+        label { display: block; margin: 14px 0 6px; font-size: .9rem; }
+        input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #d4af37; background: rgba(255, 255, 255, .08); color: #fff; font-size: 1rem; }
+        button { width: 100%; margin-top: 22px; padding: 13px; border: none; border-radius: 999px; background: #d4af37; color: #000; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        button:hover { filter: brightness(1.1); }
+        .error { margin-top: 16px; color: #ff9d9d; text-align: center; font-size: .9rem; }
+        .links { margin-top: 18px; text-align: center; font-size: .85rem; }
+        .links a { color: #f5e1a4; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Owner / Staff Login</h1>
+        <p class="sub">Gellez Beauty Salon</p>
+        <form method="post">
+            <label for="Email">Email</label>
+            <input id="Email" asp-for="Email" type="email" autocomplete="username" />
+
+            <label for="Password">Password</label>
+            <input id="Password" asp-for="Password" type="password" autocomplete="current-password" />
+
+            <button type="submit">Login</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="error">@Model.ErrorMessage</p>
+        }
+
+        <div class="links">
+            <p>No account yet? <a href="/OwnerCreate">Sign up</a></p>
+            <p style="margin-top:10px"><a href="/">Back</a></p>
+        </div>
+    </div>
+</body>
+</html>
